@@ -20,7 +20,7 @@ router.post("/analyze-comments", async (req: Request, res: Response) => {
   try {
     const { videoUrl }: { videoUrl: string } = req.body;
     const videoId: string | null = extractVideoId(videoUrl);
-    var comments = await Comment.find({ sentiment: { $exists: false }, videoId });
+    var comments = await Comment.find({ sentiment: { $exists: false } });
 
     for (const comment of comments) {
       const sentiment: string = await analyzeSentiment(comment.text);
@@ -28,7 +28,7 @@ router.post("/analyze-comments", async (req: Request, res: Response) => {
         await Comment.updateOne({ _id: comment._id }, { $set: { sentiment } });
       }
     }
-    comments = await Comment.find({ sentiment: { $exists: true } });
+    comments = await Comment.find({ videoId });
 
     res.json({ message: "Sentiment analysis completed", comments });
   } catch (error: any) {
